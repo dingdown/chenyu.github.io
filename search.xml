@@ -3,10 +3,10 @@
   
     
     <entry>
-      <title>web开发-如何在本地调试微信授权</title>
+      <title>web开发-如何在本地调试微信相关功能</title>
       <link href="/2018/07/16/debugging-wechat/"/>
       <url>/2018/07/16/debugging-wechat/</url>
-      <content type="html"><![CDATA[]]></content>
+      <content type="html"><![CDATA[<h2 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h2><blockquote><p><em>在站点不发布到正式环境的情况下调试微信相关功能</em></p></blockquote><h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>　　最近经常有一些活动类的需求要在微信环境中实现，需要获得当前微信用户的信息，以及使用微信的js-sdk来定制一些功能，甚至包括微信支付。开发过程很简单，然而调试就是个坑。<br></p><p>　　根据微信公众号开发文档知道，微信公众号后台设置的网页授权域名是正式环境的域名，进行授权操作的所有回调都是进入这个域名处理的。由此我想到一点： <strong>修改本地域名映射从而拦截回调信息</strong> ，微信不会对域名的HOST信息进行验证（只验证域名是否与后台设置的一致），事实证明这个方案是 <strong>完全可行</strong> 的</p><img src="/2018/07/16/debugging-wechat/oauth.png" title="微信授权流程图"><h2 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h2><blockquote><ol><li><p><em>把项目部署到本机80端口并设置项目的访问地址为正式域名（微信公众号后台设置的网页授权域名）</em></p></li><li><p><em>修改HOST文件将正式域名与本地IP127.0.0.1绑定</em></p></li><li><p><em>登录PC版微信进行调试，此时访问的就是本地的项目了</em></p></li><li><p><em>真机测试</em></p></li></ol></blockquote><h4 id="把项目部署到本机80端口"><a href="#把项目部署到本机80端口" class="headerlink" title="把项目部署到本机80端口"></a>把项目部署到本机80端口</h4><p>以我最近开发的项目举例，微信后台设置的网页授权域名是<a href="https://m.baishop.com" target="_blank" rel="noopener">m.baishop.com</a>，项目语言用的是<code>C#</code>，所以部署站点自然使用window系统自带的IIS（Internet Information Services）了。如下图<br><br><img src="/2018/07/16/debugging-wechat/step_01.png"></p><blockquote><p>需要注意的是IP不分配，端口占用80，主机是正式域名m.baishop.com。填完之后点击确定，并且启动站点</p></blockquote><h4 id="修改HOST文件"><a href="#修改HOST文件" class="headerlink" title="修改HOST文件"></a>修改HOST文件</h4><p>打开<code>C:\Windows\System32\drivers\etc</code>目录，找到hosts文件，用记事本打开，在最后面加上一行：<br><figure class="hljs highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs undefined">127<span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.1</span> <span class="hljs-selector-tag">m</span><span class="hljs-selector-class">.baishop</span><span class="hljs-selector-class">.com</span><br></code></pre></td></tr></table></figure></p><p>这一步将正式环境的域名与本地IP绑定了，此时可以打开浏览器，访问<a href="https://m.baishop.com" target="_blank" rel="noopener">m.baishop.com</a>看下加载的是不是本地的项目了</p><h4 id="登录PC端微信进行调试"><a href="#登录PC端微信进行调试" class="headerlink" title="登录PC端微信进行调试"></a>登录PC端微信进行调试</h4><p>确定在浏览器里访问正式的域名加载的是本地项目之后，登录PC端微信，访问m.baishop.com，就可以开始调试了，你可以在你的本地项目打断点（C#开发的同学可以看这篇文章<a href="http://xxx.com" target="_blank" rel="noopener">《如何断点调试IIS部署的项目》</a>），可以在页面脚本里调用微信的js-sdk来更改当前页面的转发功能，所有的变更只需要刷新一下页面即可看到效果<br></p><h4 id="真机测试"><a href="#真机测试" class="headerlink" title="真机测试"></a>真机测试</h4><p>　　PC端的微信测试能测的不多，要进行详细的测试，例如分享接口、图像接口、界面操作等就只能在真机上测。有两种方案，都是要借助Fiddler这种抓包软件来实现。<br></p><p>　　先下载安装<a href="https://www.telerik.com/fiddler" target="_blank" rel="noopener">Fiddler</a>，安装完成之后打开，设置一下代理：<code>Tools&gt;Options&gt;Connections</code></p><img src="/2018/07/16/debugging-wechat/fiddler_setting.png"><blockquote><p>设置完成重启一下fiddler</p></blockquote><p>方案一：使用夜神模拟器或其他的安卓模拟器，在模拟器登录微信来进行调试，模拟器的网络代理需要设置一下，让所有的请求都经过fiddler，fiddler会将模拟器的网络与电脑本地的网络衔接，这样我们设置的拦截才会生效。设置步骤：<code>设置&gt;WLAN&gt;</code>，找到当前已连接的wifi，长按出现弹窗，选择<code>修改网络</code>，则出现当前网络状态，勾选<code>显示高级选项</code>，<code>代理</code>设置为手动，<code>代理服务器主机名</code>填写当前电脑IP地址，<code>代理服务器端口</code>填写<code>8888</code>，然后保存</p><img src="/2018/07/16/debugging-wechat/network_setting.png"><p>方案二：手机调试。手机连接与PC一个局域网的WIFI，接下来同方案一一样设置手机网络代理。</p><img src="/2018/07/16/debugging-wechat/network_setting_ios.png"><p>接下来登录模拟器或手机上的微信，访问m.baishop.com，即可开始调试</p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>用这种方法，不仅可以调试微信相关，甚至还可以测试QQ、微博第三方登录等功能，真是屡试不爽。原理很简单：<strong>假装成正式环境发起的请求欺骗第三方应用</strong></p>]]></content>
       
       
         <tags>
@@ -28,16 +28,16 @@
     </entry>
     
     <entry>
-      <title>categories</title>
-      <link href="/categories/index.html"/>
-      <url>/categories/index.html</url>
+      <title>tags</title>
+      <link href="/tags/index.html"/>
+      <url>/tags/index.html</url>
       <content type="html"><![CDATA[]]></content>
     </entry>
     
     <entry>
-      <title>tags</title>
-      <link href="/tags/index.html"/>
-      <url>/tags/index.html</url>
+      <title>categories</title>
+      <link href="/categories/index.html"/>
+      <url>/categories/index.html</url>
       <content type="html"><![CDATA[]]></content>
     </entry>
     
