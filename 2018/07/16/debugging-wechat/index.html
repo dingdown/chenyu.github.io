@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
     
     
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicons/android-chrome-96x96.png">
     
     
     <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
@@ -176,7 +176,7 @@
 </blockquote>
 <h4 id="修改HOST文件"><a href="#修改HOST文件" class="headerlink" title="修改HOST文件"></a>修改HOST文件</h4><p>打开<code>C:\Windows\System32\drivers\etc</code>目录，找到hosts文件，用记事本打开，在最后面加上一行：<br><figure class="hljs highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs undefined">127<span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.1</span> <span class="hljs-selector-tag">m</span><span class="hljs-selector-class">.baishop</span><span class="hljs-selector-class">.com</span><br></code></pre></td></tr></table></figure></p>
 <p>这一步将正式环境的域名与本地IP绑定了，此时可以打开浏览器，访问<a href="https://m.baishop.com" target="_blank" rel="noopener">m.baishop.com</a>看下加载的是不是本地的项目了</p>
-<h4 id="登录PC端微信进行调试"><a href="#登录PC端微信进行调试" class="headerlink" title="登录PC端微信进行调试"></a>登录PC端微信进行调试</h4><p>确定在浏览器里访问正式的域名加载的是本地项目之后，登录PC端微信，访问m.baishop.com，就可以开始调试了，你可以在你的本地项目打断点（C#开发的同学可以看这篇文章<a href="http://xxx.com" target="_blank" rel="noopener">《如何断点调试IIS部署的项目》</a>），可以在页面脚本里调用微信的js-sdk来更改当前页面的转发功能，所有的变更只需要刷新一下页面即可看到效果<br></p>
+<h4 id="登录PC端微信进行调试"><a href="#登录PC端微信进行调试" class="headerlink" title="登录PC端微信进行调试"></a>登录PC端微信进行调试</h4><p>确定在浏览器里访问正式的域名加载的是本地项目之后，登录PC端微信，访问m.baishop.com，就可以开始调试了，你可以在你的本地项目打断点调试，可以在页面脚本里调用微信的js-sdk来更改当前页面的转发功能，所有的变更只需要刷新一下页面即可看到效果<br></p>
 <h4 id="真机测试"><a href="#真机测试" class="headerlink" title="真机测试"></a>真机测试</h4><p>　　PC端的微信测试能测的不多，要进行详细的测试，例如分享接口、图像接口、界面操作等就只能在真机上测。有两种方案，都是要借助Fiddler这种抓包软件来实现。<br></p>
 <p>　　先下载安装<a href="https://www.telerik.com/fiddler" target="_blank" rel="noopener">Fiddler</a>，安装完成之后打开，设置一下代理：<code>Tools&gt;Options&gt;Connections</code></p>
 <img src="/2018/07/16/debugging-wechat/fiddler_setting.png">
